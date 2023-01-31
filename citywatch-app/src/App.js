@@ -1,86 +1,122 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+// import { useHistory } from "react-router-dom";
+// import Main from "./Main";
 
-import React, { useState, useRef } from 'react';
-import Webcam from 'react-webcam';
 
-const CameraManager = () => {
-        const [activeCameraIndex, setActiveCameraIndex] = useState(0);
-        const [cameras, setCameras] = useState([
-            { id: 1, name: 'Camera 1' },
-            { id: 2, name: 'Camera 2' },
-            { id: 3, name: 'Camera 3' },
-            // Add more cameras here as needed
-        ]);
-        const [imageSrc, setImageSrc] = useState(null);
-        const [isRecording, setIsRecording] = useState(false);
-        const [motionDetected, setMotionDetected] = useState(false);
-        const webcamRefs = useRef([]);
 
-        const handleTakePhoto = () => {
-            const imageSrc = webcamRefs.current[activeCameraIndex].getScreenshot();
-            setImageSrc(imageSrc);
-        };
+import "./styles.css";
 
-        const handleStartRecording = () => {
-            setIsRecording(true);
-            // Code to start recording the video here
-        };
+function App() {
+  // React States
+  const [errorMessages, setErrorMessages] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-        const handleStopRecording = () => {
-            setIsRecording(false);
-            // Code to stop recording the video here
-        };
+  // User Login info
+  const database = [
+    {
+      username: "shardauni",
+      password: "test"
+    },
+    {
+      username: "test",
+      password: "test"
+    }
+  ];
 
-        const handleMotionDetection = () => {
-            // Code to detect motion here
-            setMotionDetected(true);
-        };
+  const errors = {
+    uname: "invalid username",
+    pass: "invalid password"
+  };
 
-        const handleCameraChange = (index) => {
-            setActiveCameraIndex(index);
-        };
+  const handleSubmit = (event) => {
+    //Prevent page reload
+    event.preventDefault();
 
-        return ( <
-            div >
-            <
-            div > {
-                cameras.map((camera, index) => ( <
-                    button key = { camera.id }
-                    onClick = {
-                        () => handleCameraChange(index) } > { camera.name } <
-                    /button>
-                ))
-            } <
-            /div> <
-            Webcam audio = { false }
-            height = { 500 }
-            ref = {
-                (webcamRef) => {
-                    webcamRefs.current[activeCameraIndex] = webcamRef;
-                }
-            }
-            screenshotFormat = "image/jpeg"
-            width = { 500 }
-            /> <
-            div >
-            <
-            button onClick = { handleTakePhoto } > Take Photo < /button> { imageSrc && < img src = { imageSrc }
-                alt = "Captured" / > } <
-            /div> <
-            div > {!isRecording ? ( <
-                    button onClick = { handleStartRecording } > Start Recording < /button>
-                ) : ( <
-                    button onClick = { handleStopRecording } > Stop Recording < /button>
-                )
-            } <
-            /div> <
-            div > {
-                motionDetected && < p > Motion detected! < /p>} <
-                button onClick = { handleMotionDetection } > Start Motion Detection < /button> <
-                /div> <
-                /div>
-            );
-        };
+    var { uname, pass } = document.forms[0];
 
-        export default CameraManager;
+    // Find user login info
+    const userData = database.find((user) => user.username === uname.value);
+
+    // Compare user info
+    if (userData) {
+      if (userData.password !== pass.value) {
+        // Invalid password
+        setErrorMessages({ name: "pass", message: errors.pass });
+      } else {
+        setIsSubmitted(true);
+      }
+    } else {
+      // Username not found
+      setErrorMessages({ name: "uname", message: errors.uname });
+    }
+  };
+
+  // Generate JSX code for error message
+  const renderErrorMessage = (name) =>
+    name === errorMessages.name && (
+      <div className="error">{errorMessages.message}</div>
+    );
+
+  // JSX code for login form
+  const renderForm = (
+    <div className="form">
+      <form onSubmit={handleSubmit}>
+        <div className="input-container">
+          <label>Username </label>
+          <input type="text" name="uname" required />
+          {renderErrorMessage("uname")}
+        </div>
+        <div className="input-container">
+          <label>Password </label>
+          <input type="password" name="pass" required />
+          {renderErrorMessage("pass")}
+        </div>
+        <div className="button-container">
+          <input type="submit" />
+        </div>
+      </form>
+    </div>
+  );
+
+  
+// //linking it to main page
+//   const handleSubmitAction = (event) => {
+//     // Prevent page reload
+//     event.preventDefault();
+  
+//     var { uname, pass } = document.forms[0];
+  
+//     // Find user login info
+//     const userData = database.find((user) => user.username === uname.value);
+  
+//     // Compare user info
+//     if (userData) {
+//       if (userData.password !== pass.value) {
+//         // Invalid password
+//         setErrorMessages({ name: "pass", message: errors.pass });
+//       } else {
+//         setIsSubmitted(true);
+//         const history = useHistory();
+//         history.push("/main");
+//       }
+//     } else {
+//       // Username not found
+//       setErrorMessages({ name: "uname", message: errors.uname });
+//     }
+//   };
+  
+
+  return (
+    <div className="app">
+ 
+      
+      <div className="login-form">
+        <div className="title">Sign In</div>
+        {isSubmitted ? <div>User is successfully logged in</div> : renderForm}
+      </div>
+      
+    </div>
+  );
+}
+
+export default App;
